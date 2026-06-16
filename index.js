@@ -1,10 +1,11 @@
 import express from 'express'
+import { existsSync, mkdirSync } from 'fs'
+
 var app = express()
-var PORT = process.env.PORT || 3000
+var PORT = process.env.PORT || 8080
 var TMP = '/tmp/anime-relay'
 var client = null
 
-import { existsSync, mkdirSync } from 'fs'
 if (!existsSync(TMP)) mkdirSync(TMP, { recursive: true })
 
 console.log('starting relay...')
