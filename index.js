@@ -7,6 +7,8 @@ var client = null
 import { existsSync, mkdirSync } from 'fs'
 if (!existsSync(TMP)) mkdirSync(TMP, { recursive: true })
 
+console.log('starting relay...')
+
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*')
   next()
@@ -17,7 +19,7 @@ async function getClient() {
   try {
     var m = await import('webtorrent')
     var WebTorrent = m.default || m
-    client = new WebTorrent()
+    client = new WebTorrent({ utp: false })
     console.log('webtorrent ready')
   } catch(e) {
     console.error('webtorrent init failed:', e.message)
