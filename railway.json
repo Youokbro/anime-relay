@@ -3,6 +3,7 @@
     "builder": "nixpacks"
   },
   "deploy": {
+    "numReplicas": 1,
     "startCommand": "node index.js"
   }
 }
