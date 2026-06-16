@@ -1,22 +1,14 @@
-import express from 'express'
-var app = express()
+import http from 'http'
 var PORT = process.env.PORT || 8080
 
-app.use(function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*')
-  next()
+var srv = http.createServer(function(req, res) {
+  res.writeHead(200, {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*'
+  })
+  res.end(JSON.stringify({ ok: true, url: req.url }))
 })
 
-app.get('/', function(req, res) {
-  res.json({ ok: true, message: 'relay alive' })
-})
-
-app.get('/magnet', function(req, res) {
-  var magnet = req.query.magnet || req.query.m
-  if (!magnet) return res.status(400).json({ error: 'missing magnet' })
-  res.json({ received: magnet.slice(0, 60) + '...', note: 'webtorrent coming soon' })
-})
-
-app.listen(PORT, function() {
-  console.log('relay on :' + PORT)
+srv.listen(PORT, function() {
+  console.log('listening on ' + PORT)
 })
