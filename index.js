@@ -37,7 +37,18 @@ app.get('/add', async function(req, res) {
   if (torrents[hash]) return res.json({ hash: hash, status: 'exists' })
 
   var wt = await getClient()
-  var t = wt.add(magnet, { path: TMP })
+  var t = wt.add(magnet, {
+    path: TMP,
+    announce: [
+      'udp://tracker.opentrackr.org:1337',
+      'udp://tracker.coppersurfer.tk:6969',
+      'udp://tracker.leechers-paradise.org:6969',
+      'udp://exodus.desync.com:6969',
+      'udp://tracker.torrent.eu.org:451',
+      'http://tracker.opentrackr.org:1337/announce',
+      'https://tracker.btorrent.xyz'
+    ]
+  })
   torrents[hash] = { torrent: t, hash: hash, added: Date.now() }
 
   t.on('error', function() {})
