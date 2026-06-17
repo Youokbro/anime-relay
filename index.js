@@ -26,7 +26,7 @@ async function getClient() {
   if (client) return client
   var m = await import('webtorrent')
   var WebTorrent = m.default || m
-  client = new WebTorrent({ utp: false })
+  client = new WebTorrent()
   client.on('error', function() {})
   return client
 }
