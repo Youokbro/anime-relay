@@ -7,6 +7,9 @@ var TMP = '/tmp/anime-relay'
 var client = null
 var torrents = {}
 
+process.on('uncaughtException', function() {})
+process.on('unhandledRejection', function() {})
+
 import { existsSync, mkdirSync } from 'fs'
 if (!existsSync(TMP)) mkdirSync(TMP)
 
@@ -65,14 +68,19 @@ app.get('/status', function(req, res) {
   if (!t) return res.json({ exists: false })
 
   var tr = t.torrent
+  var prog = 0, spd = 0, p = 0, done = false
+  try { prog = Math.round((tr.progress || 0) * 100) } catch(e) {}
+  try { spd = tr.downloadSpeed || 0 } catch(e) {}
+  try { p = tr.numPeers || 0 } catch(e) {}
+  try { done = tr.done || false } catch(e) {}
   var file = tr.files && tr.files[0]
   res.json({
     exists: true,
     name: tr.name || '',
-    progress: Math.round((tr.progress || 0) * 100),
-    speed: tr.downloadSpeed || 0,
-    peers: tr.numPeers || 0,
-    done: tr.done || false,
+    progress: prog,
+    speed: spd,
+    peers: p,
+    done: done,
     size: file ? file.length : 0,
     files: tr.files ? tr.files.map(function(f) { return { name: f.name, length: f.length } }) : []
   })
