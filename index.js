@@ -98,23 +98,30 @@ app.get('/stream', function(req, res) {
   if (!file) return res.status(404).json({ error: 'no video file' })
 
   var range = req.headers.range
-  if (range) {
-    var p = range.replace(/bytes=/, '').split('-')
-    var s = parseInt(p[0]), e = p[1] ? parseInt(p[1]) : file.length - 1
-    res.writeHead(206, {
-      'Content-Range': 'bytes ' + s + '-' + e + '/' + file.length,
-      'Accept-Ranges': 'bytes',
-      'Content-Length': e - s + 1,
-      'Content-Type': 'video/mp4'
-    })
-    file.createReadStream({ start: s, end: e }).pipe(res)
-  } else {
-    res.writeHead(200, {
-      'Content-Length': file.length,
-      'Content-Type': 'video/mp4',
-      'Accept-Ranges': 'bytes'
-    })
-    file.createReadStream().pipe(res)
+  try {
+    var rs
+    if (range) {
+      var p = range.replace(/bytes=/, '').split('-')
+      var s = parseInt(p[0]), e = p[1] ? parseInt(p[1]) : file.length - 1
+      res.writeHead(206, {
+        'Content-Range': 'bytes ' + s + '-' + e + '/' + file.length,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': e - s + 1,
+        'Content-Type': 'video/mp4'
+      })
+      rs = file.createReadStream({ start: s, end: e })
+    } else {
+      res.writeHead(200, {
+        'Content-Length': file.length,
+        'Content-Type': 'video/mp4',
+        'Accept-Ranges': 'bytes'
+      })
+      rs = file.createReadStream()
+    }
+    rs.on('error', function() { try { res.end() } catch(e) {} })
+    rs.pipe(res)
+  } catch(e) {
+    res.status(503).json({ error: 'stream not ready', detail: e.message })
   }
 })
 
